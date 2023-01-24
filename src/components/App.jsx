@@ -17,14 +17,13 @@ export const App = () => {
         />  
       </Section>
       <Section title="Contacts">
-      {contacts.length !== 0 && (
         <>
-          <Filter
-          />
-          <ContactList
-          />
+          {contacts.length !== 0 && (
+          <Filter/>
+          )} 
+          <ContactList/>
         </>
-      )}
+
       </Section>
     </div>
   );

@@ -1,16 +1,11 @@
 import { createSlice  } from '@reduxjs/toolkit'
-import { persistReducer } from 'redux-persist'
-import storage from 'redux-persist/lib/storage' 
+import { addContactsThunk, getContactsThunk, removeContactsThunk } from 'redux/thunks/contactsThunks'
 
 const initialState = {
-  contacts: [
-    {id: 'id-1', name: 'Rosie Simpson', number: '459-12-56'},
-    {id: 'id-2', name: 'Hermione Kline', number: '443-89-12'},
-    {id: 'id-3', name: 'Eden Clements', number: '645-17-79'},
-    {id: 'id-4', name: 'Annie Copeland', number: '227-91-26'},
-  ],
+  error: null,
+  isLoading: false,
+  contacts: [],
 }
-
 export const contactsSlice = createSlice({
   name: 'contacts', 
   initialState: initialState,
@@ -18,17 +13,42 @@ export const contactsSlice = createSlice({
     addContacts: (state, action) => {
       state.contacts = [...state.contacts, action.payload]
     },
-    removeContacts: (state, action) => {
-      state.contacts = state.contacts.filter((item) => item.id !== action.payload)},  
+  },
+  extraReducers: builder => {
+    builder.addCase(getContactsThunk.pending, (state) => { 
+      state.isLoading = true
+     }).addCase(getContactsThunk.fulfilled, (state, action) => {
+      state.contacts = action.payload
+      state.isLoading = false
+      state.error = null
+     }).addCase(getContactsThunk.rejected, (state, action) => {
+      state.contacts = []
+      state.error = action.payload
+      state.isLoading = false
+     }).addCase(removeContactsThunk.pending, (state) => { 
+      state.isLoading = true
+     }).addCase(removeContactsThunk.fulfilled, (state, action) => {
+      state.contacts = state.contacts.filter((item) => item.id !== action.payload)
+      state.isLoading = false
+      state.error = null
+     }).addCase(removeContactsThunk.rejected, (state, action) => {
+      state.contacts = []
+      state.error = action.payload
+      state.isLoading = false
+     }).addCase(addContactsThunk.pending, (state) => { 
+      state.isLoading = true
+     }).addCase(addContactsThunk.fulfilled, (state, action) => {
+      state.contacts = [...state.contacts, action.payload]
+      state.isLoading = false
+      state.error = null
+     }).addCase(addContactsThunk.rejected, (state, action) => {
+      state.contacts = []
+      state.error = action.payload
+      state.isLoading = false
+     });
   },
 })
-
-const persistConfig = {
-  key: 'root',
-  storage,
-
-}
  
-export const persistedContactsReducer = persistReducer(persistConfig, contactsSlice.reducer)
+export const contactsReducer = contactsSlice.reducer;
 
-export const { addContacts, removeContacts } = contactsSlice.actions;
+// export const { addContacts, removeContacts } = contactsSlice.actions;
